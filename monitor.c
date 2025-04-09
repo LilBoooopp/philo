@@ -6,7 +6,7 @@
 /*   By: cbopp <cbopp@student.42lausanne.ch>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 12:08:44 by cbopp             #+#    #+#             */
-/*   Updated: 2025/01/07 13:02:04 by cbopp            ###   ########.fr       */
+/*   Updated: 2025/04/09 06:33:10 by cbopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@ bool	check_death(t_philo *philo)
 	pthread_mutex_unlock(&(philo->table->meal_mutex));
 	pthread_mutex_lock(&(philo->table->death_mutex));
 	is_dead = false;
-	if (!philo->table->simulation_end && 
-		time_since_meal > (philo->table->time_to_die * 1000))
+	if (!philo->table->simulation_end
+		&& time_since_meal > (philo->table->time_to_die * 1000))
 	{
 		print_status(philo, "died");
 		philo->table->simulation_end = true;
@@ -103,15 +103,16 @@ int	start_simulation(t_philo *philos, t_table *table)
 	while (++i < table->nb_philos)
 	{
 		philos[i].last_meal = table->start_time;
-		if (pthread_create(&(philos[i].thread), NULL, philosopher_routine, &philos[i]))
+		if (pthread_create(&(philos[i].thread), NULL,
+				philosopher_routine, &philos[i]))
 			return (ERROR);
 	}
 	if (pthread_create(&monitor, NULL, death_monitor, philos))
 		return (ERROR);
 	i = -1;
 	while (++i < table->nb_philos)
-	if (pthread_join(philos[i].thread, NULL))
-		return (ERROR);
+		if (pthread_join(philos[i].thread, NULL))
+			return (ERROR);
 	if (pthread_join(monitor, NULL))
 		return (ERROR);
 	return (SUCCESS);

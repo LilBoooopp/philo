@@ -6,7 +6,7 @@
 /*   By: cbopp <cbopp@student.42lausanne.ch>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 12:08:53 by cbopp             #+#    #+#             */
-/*   Updated: 2024/12/31 12:16:08 by cbopp            ###   ########.fr       */
+/*   Updated: 2025/04/09 06:32:10 by cbopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,14 +54,26 @@ void	print_status(t_philo *philo, char *status)
 	pthread_mutex_unlock(&(philo->table->write_mutex));
 }
 
+/**
+ * @brief Pauses executiong for a specified duration while checking 
+ * simulation status.
+ * @param duration The sleep duration in microseconds.
+ * @param table A pointer to the table structure.
+ */
 void	smart_sleep(long long duration, t_table *table)
 {
 	long long	start;
 	long long	current;
+	bool		simulation_running;
 
 	start = get_time();
-	while (!table->simulation_end)
+	while (true)
 	{
+		pthread_mutex_lock(&(table->death_mutex));
+		simulation_running = !table->simulation_end;
+		pthread_mutex_unlock(&(table->death_mutex));
+		if (!simulation_running)
+			break ;
 		current = get_time();
 		if ((current - start) >= duration)
 			break ;
